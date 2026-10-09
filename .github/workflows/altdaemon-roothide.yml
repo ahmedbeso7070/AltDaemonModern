@@ -1,0 +1,101 @@
+name: AltDaemon RootHide
+
+# Builds the arm64 + arm64e RootHide package. This workflow is separate from
+# altdaemon.yml (rootless arm64), which is left unchanged.
+
+on:
+  push:
+    paths:
+      - "AltDaemon/**"
+      - "Compatibility/**"
+      - "Shared/**"
+      - "Dependencies/AltSign"
+      - "AltStore.xcodeproj/**"
+      - "AltStore.xcworkspace/**"
+      - "scripts/build-altdaemon-roothide.sh"
+      - "scripts/build-altstore-auth-compat-roothide.sh"
+      - "scripts/build-openssl-arm64e.sh"
+      - "scripts/build-roothide-deb.sh"
+      - ".github/workflows/altdaemon-roothide.yml"
+  pull_request:
+    paths:
+      - "AltDaemon/**"
+      - "Compatibility/**"
+      - "Shared/**"
+      - "Dependencies/AltSign"
+      - "AltStore.xcodeproj/**"
+      - "AltStore.xcworkspace/**"
+      - "scripts/build-altdaemon-roothide.sh"
+      - "scripts/build-altstore-auth-compat-roothide.sh"
+      - "scripts/build-openssl-arm64e.sh"
+      - "scripts/build-roothide-deb.sh"
+      - ".github/workflows/altdaemon-roothide.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build arm64 + arm64e OpenSSL
+        run: scripts/build-openssl-arm64e.sh "${{ runner.temp }}/OpenSSLArm64e"
+
+      - name: Build AltDaemon (arm64 + arm64e)
+        env:
+          ALTDAEMON_DERIVED_DATA_DIR: ${{ runner.temp }}/AltDaemonRootHideDerivedData
+          ALTDAEMON_PACKAGE_CACHE_DIR: ${{ runner.temp }}/AltDaemonPackages
+        run: scripts/build-altdaemon-roothide.sh "${{ runner.temp }}/OpenSSLArm64e"
+
+      - name: Build AltStore authentication compatibility module (arm64 + arm64e)
+        run: scripts/build-altstore-auth-compat-roothide.sh "${{ runner.temp }}/AltStoreAuthCompat.dylib"
+
+      - name: Check built architectures
+        run: |
+          lipo -archs "${{ runner.temp }}/AltDaemonRootHideDerivedData/Build/Products/Release-iphoneos/AltDaemon"
+          lipo -archs "${{ runner.temp }}/AltStoreAuthCompat.dylib"
+
+      - name: Install packaging tools
+        run: brew install ldid dpkg
+
+      - name: Build RootHide .deb
+        env:
+          ALTDAEMON_AUTH_COMPAT_BINARY: ${{ runner.temp }}/AltStoreAuthCompat.dylib
+        run: |
+          mkdir -p "${{ runner.temp }}/AltDaemonDeb"
+          scripts/build-roothide-deb.sh \
+            "${{ runner.temp }}/AltDaemonRootHideDerivedData/Build/Products/Release-iphoneos/AltDaemon" \
+            "${{ runner.temp }}/AltDaemonDeb/AltDaemonModern_1.2.0_iphoneos-arm64e.deb"
+
+      - name: Stage unsigned artifact
+        env:
+          ALTDAEMON_ARTIFACT_DIR: ${{ runner.temp }}/AltDaemonArtifact
+          ALTDAEMON_BINARY: ${{ runner.temp }}/AltDaemonRootHideDerivedData/Build/Products/Release-iphoneos/AltDaemon
+          STARSCREAM_LICENSE: ${{ runner.temp }}/AltDaemonPackages/checkouts/Starscream/LICENSE
+        run: |
+          mkdir -p "$ALTDAEMON_ARTIFACT_DIR/licenses"
+          cp "$ALTDAEMON_BINARY" "$ALTDAEMON_ARTIFACT_DIR/AltDaemon"
+          cp "${{ runner.temp }}/AltStoreAuthCompat.dylib" "$ALTDAEMON_ARTIFACT_DIR/AltStoreAuthCompat.dylib"
+          cp LICENSE "$ALTDAEMON_ARTIFACT_DIR/AGPL-3.0.txt"
+          cp AltDaemon/NOTICE.md "$ALTDAEMON_ARTIFACT_DIR/NOTICE.md"
+          cp "$STARSCREAM_LICENSE" "$ALTDAEMON_ARTIFACT_DIR/licenses/Starscream-Apache-2.0.txt"
+          shasum -a 256 "$ALTDAEMON_ARTIFACT_DIR/AltDaemon" > "$ALTDAEMON_ARTIFACT_DIR/AltDaemon.sha256"
+          shasum -a 256 "$ALTDAEMON_ARTIFACT_DIR/AltStoreAuthCompat.dylib" > "$ALTDAEMON_ARTIFACT_DIR/AltStoreAuthCompat.dylib.sha256"
+
+      - name: Publish RootHide .deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: AltDaemonModern-roothide-arm64e-deb
+          path: ${{ runner.temp }}/AltDaemonDeb/AltDaemonModern_1.2.0_iphoneos-arm64e.deb
+          if-no-files-found: error
+
+      - name: Publish unsigned workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AltDaemon-unsigned-roothide-arm64-arm64e
+          path: ${{ runner.temp }}/AltDaemonArtifact
+          if-no-files-found: error
