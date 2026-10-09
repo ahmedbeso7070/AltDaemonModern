@@ -43,16 +43,16 @@ jobs:
           submodules: recursive
 
       - name: Build arm64 + arm64e OpenSSL
-        run: scripts/build-openssl-arm64e.sh "${{ runner.temp }}/OpenSSLArm64e"
+        run: sh scripts/build-openssl-arm64e.sh "${{ runner.temp }}/OpenSSLArm64e"
 
       - name: Build AltDaemon (arm64 + arm64e)
         env:
           ALTDAEMON_DERIVED_DATA_DIR: ${{ runner.temp }}/AltDaemonRootHideDerivedData
           ALTDAEMON_PACKAGE_CACHE_DIR: ${{ runner.temp }}/AltDaemonPackages
-        run: scripts/build-altdaemon-roothide.sh "${{ runner.temp }}/OpenSSLArm64e"
+        run: sh scripts/build-altdaemon-roothide.sh "${{ runner.temp }}/OpenSSLArm64e"
 
       - name: Build AltStore authentication compatibility module (arm64 + arm64e)
-        run: scripts/build-altstore-auth-compat-roothide.sh "${{ runner.temp }}/AltStoreAuthCompat.dylib"
+        run: sh scripts/build-altstore-auth-compat-roothide.sh "${{ runner.temp }}/AltStoreAuthCompat.dylib"
 
       - name: Check built architectures
         run: |
@@ -67,7 +67,7 @@ jobs:
           ALTDAEMON_AUTH_COMPAT_BINARY: ${{ runner.temp }}/AltStoreAuthCompat.dylib
         run: |
           mkdir -p "${{ runner.temp }}/AltDaemonDeb"
-          scripts/build-roothide-deb.sh \
+          sh scripts/build-roothide-deb.sh \
             "${{ runner.temp }}/AltDaemonRootHideDerivedData/Build/Products/Release-iphoneos/AltDaemon" \
             "${{ runner.temp }}/AltDaemonDeb/AltDaemonModern_1.2.0_iphoneos-arm64e.deb"
 
