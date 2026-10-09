@@ -45,6 +45,17 @@ jobs:
       - name: Build arm64 + arm64e OpenSSL
         run: sh scripts/build-openssl-arm64e.sh "${{ runner.temp }}/OpenSSLArm64e"
 
+      - name: Validate OpenSSL architectures
+        run: |
+          echo "libcrypto: $(lipo -archs "${{ runner.temp }}/OpenSSLArm64e/iphoneos/lib/libcrypto.a")"
+          echo "libssl: $(lipo -archs "${{ runner.temp }}/OpenSSLArm64e/iphoneos/lib/libssl.a")"
+
+          echo "$(lipo -archs "${{ runner.temp }}/OpenSSLArm64e/iphoneos/lib/libcrypto.a")" | grep -Eq 'arm64|arm64e'
+          echo "$(lipo -archs "${{ runner.temp }}/OpenSSLArm64e/iphoneos/lib/libssl.a")" | grep -Eq 'arm64|arm64e'
+
+          ! echo "$(lipo -archs "${{ runner.temp }}/OpenSSLArm64e/iphoneos/lib/libcrypto.a")" | grep -Eq 'armv7|armv7s'
+          ! echo "$(lipo -archs "${{ runner.temp }}/OpenSSLArm64e/iphoneos/lib/libssl.a")" | grep -Eq 'armv7|armv7s'
+
       - name: Build AltDaemon (arm64 + arm64e)
         env:
           ALTDAEMON_DERIVED_DATA_DIR: ${{ runner.temp }}/AltDaemonRootHideDerivedData
