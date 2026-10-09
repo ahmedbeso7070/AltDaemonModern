@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+
+# RootHide randomizes the jailbreak root, so launchd needs real (jbroot-resolved)
+# paths. The packaged plist carries a placeholder that is replaced here.
+if command -v jbroot >/dev/null 2>&1; then
+    ALTDAEMON_LAUNCHCTL=$(jbroot /usr/bin/launchctl)
+    ALTDAEMON_PROGRAM=$(jbroot /usr/bin/AltDaemon)
+    ALTDAEMON_PLIST=$(jbroot /Library/LaunchDaemons/com.rileytestut.altdaemon.plist)
+else
+    ALTDAEMON_LAUNCHCTL=/usr/bin/launchctl
+    ALTDAEMON_PROGRAM=/usr/bin/AltDaemon
+    ALTDAEMON_PLIST=/Library/LaunchDaemons/com.rileytestut.altdaemon.plist
+fi
+[ -x "$ALTDAEMON_LAUNCHCTL" ] || ALTDAEMON_LAUNCHCTL=launchctl
+
+sed "s|__ALTDAEMON_PROGRAM__|$ALTDAEMON_PROGRAM|g" "$ALTDAEMON_PLIST" > "$ALTDAEMON_PLIST.new"
+mv "$ALTDAEMON_PLIST.new" "$ALTDAEMON_PLIST"
+chmod 0644 "$ALTDAEMON_PLIST"
+
+"$ALTDAEMON_LAUNCHCTL" bootstrap system "$ALTDAEMON_PLIST"
+"$ALTDAEMON_LAUNCHCTL" kickstart -k user/foreground/com.rileytestut.altdaemon

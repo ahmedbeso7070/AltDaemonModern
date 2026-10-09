@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+# RootHide randomizes the jailbreak root, so resolve real paths with jbroot.
+if command -v jbroot >/dev/null 2>&1; then
+    ALTDAEMON_LAUNCHCTL=$(jbroot /usr/bin/launchctl)
+else
+    ALTDAEMON_LAUNCHCTL=/usr/bin/launchctl
+fi
+[ -x "$ALTDAEMON_LAUNCHCTL" ] || ALTDAEMON_LAUNCHCTL=launchctl
+
+"$ALTDAEMON_LAUNCHCTL" bootout user/foreground/com.rileytestut.altdaemon >/dev/null 2>&1 || true

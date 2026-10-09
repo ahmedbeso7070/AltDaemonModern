@@ -1,0 +1,13 @@
+Package: com.rileytestut.altdaemon
+Name: AltDaemon Modern (RootHide)
+Version: 1.2.0
+Architecture: iphoneos-arm64e
+Depends: ellekit (>= 1.2)
+Description: AltDaemon for RootHide jailbreaks with current Apple login compatibility.
+ AltDaemon allows compatible AltStore builds to install and refresh apps
+ without a computer. This build targets RootHide jailbreaks and contains
+ arm64 and arm64e slices.
+Maintainer: AltDaemonModern contributors
+Author: Riley Testut and AltDaemonModern contributors
+Homepage: https://github.com/altstoreio/AltStore
+Section: Tweaks
