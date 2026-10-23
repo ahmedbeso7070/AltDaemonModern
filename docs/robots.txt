@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://altdaemon.emp0ry.com/sitemap.xml

@@ -1,0 +1,9 @@
+{
+  "name": "AltDaemon Modern",
+  "url": "http://127.0.0.1:4183/",
+  "main_status": 200,
+  "managed_assets_checked": 15,
+  "no_missing_assets": true,
+  "module_mime_types_valid": true,
+  "browser_tested": false
+}
