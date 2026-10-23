@@ -31,15 +31,3 @@ xcuserdata
 
 # Distribution artifacts
 *.deb
-
-# Product website
-/website/node_modules/
-/website/dist/
-
-# Keep generated website bundles in GitHub Pages.
-!docs/site/build/
-!docs/site/build/*.js
-!docs/site/build/*.css
-
-# Keep the recorded website checks.
-!/website/verification/*.log
