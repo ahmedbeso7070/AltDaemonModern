@@ -1,7 +1,9 @@
 # AltStore
 
 > [!IMPORTANT]
-> This fork contains **AltDaemonModern**, a source-level repair for rootless jailbreaks with modern anisette v3 support. See the [AltDaemonModern documentation](AltDaemon/README.md) for scope, build instructions, security notes, and device-testing guidance. The installed daemon is never modified by the build scripts.
+> This fork contains **AltDaemonModern**, a source-level repair for rootless jailbreaks with on-device AuthKit anisette and anisette v3 fallback. See the [AltDaemonModern documentation](AltDaemon/README.md) for scope, build instructions, security notes, and device-testing guidance. The installed daemon is never modified by the build scripts.
+
+**[AltDaemon Modern 1.2.2](https://github.com/emp0ry/AltDaemonModern/releases/tag/v1.2.2)** addresses Apple authentication error `-80045` and an AltStore authentication-retry crash. Thanks to [ichitaso](https://github.com/ichitaso/AltDaemonModern) for the 1.2.2 fixes. See the [release notes](RELEASE_NOTES_1.2.2.md) for details and the tested configuration.
 
 > AltStore is an alternative app store for non-jailbroken iOS devices. 
 
@@ -75,3 +77,7 @@ Due to the licensing of some dependencies used by AltStore, I have no choice but
 * Twitter (Less active nowadays): [@rileytestut](https://twitter.com/rileytestut)
 
 Questions about AltStore in general? Make sure to read the FAQ at https://altstore.io/faq/
+
+## Website
+
+The [product website](https://altdaemon.emp0ry.com/) is also available at [emp0ry.com/AltDaemonModern/](https://emp0ry.com/AltDaemonModern/). Website sources and publication are maintained in the private emp0ry.com project. Completed application releases notify its central static build; this repository contains the application and its technical documentation.
